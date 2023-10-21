@@ -1,7 +1,7 @@
 import User from "../models/user.model.js";
 import bcryptjs from "bcryptjs";
 import { errorHandler } from "../utils/error.js";
-import Jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
 export const signUp = async (req, res, next) => {
   const { username, email, password } = req.body;
@@ -25,9 +25,9 @@ export const signIn = async (req, res, next) => {
     if (!validPassword) {
       return next(errorHandler(402, "Wrong Credentials"));
     }
-    const token = Jwt.sign({ id: validUser._id }, process.env.JWT_TOKEN);
+    const token = jwt.sign({ id: validUser._id }, process.env.JWT_TOKEN);
     const { password: pass, ...rest } = validUser._doc;
-    res.cookie("acces token", token, { httpOnly: true }).status(200).json(rest);
+    res.cookie("access_token", token, { httpOnly: true }).status(200).json(rest);
   } catch (error) {
     next(error);
   }
@@ -36,10 +36,10 @@ export const google = async (req, res, next) => {
   try {
     const user = await User.findOne({ email: req.body.email });
     if (user) {
-      const token = Jwt.sign({ id: user._id }, process.env.JWT_TOKEN);
+      const token = jwt.sign({ id: user._id }, process.env.JWT_TOKEN);
       const { password: pass, ...rest } = user._doc;
       res
-        .cookie("access token", token, { httpOnly: true })
+        .cookie("access_token", token, { httpOnly: true })
         .status(200)
         .json(rest);
     } else {
@@ -58,9 +58,11 @@ export const google = async (req, res, next) => {
       });
      
       await newUser.save();
-      const token = Jwt.sign({id:newUser._id},process.env.JWT_TOKEN);
+      const token = jwt.sign({id:newUser._id},process.env.JWT_TOKEN);
       const {password:pass, ...rest} = newUser._doc;
-      res.cookie("access token" , token,{httpOnly:true}).status(200).json(rest);
+      res.cookie("access_token" , token,{httpOnly:true}).status(200).json(rest);
     }
-  } catch (error) {}
+  } catch (error) {
+    next(error);
+  }
 };
