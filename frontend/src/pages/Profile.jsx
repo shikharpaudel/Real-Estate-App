@@ -15,6 +15,7 @@ const Profile = () => {
   const [FilePerc, setFilePerc] = useState(0);
   const [fileError, setFileError] = useState(false);
   const [formData, setFormData] = useState({});
+  const[updateSuccess,setUpdateSuccess] = useState(false);
   const dispatch = useDispatch();
   useEffect(() => {
     if (Files) {
@@ -64,6 +65,7 @@ const Profile = () => {
         return;
       }
       dispatch(updateUserSuccess(data));
+      setUpdateSuccess(true);
     } catch (error) {
       dispatch(updateUserFailure(error.message));
     }
@@ -127,7 +129,7 @@ const Profile = () => {
           className="border p-3 rounded-lg"
           onChange={handleChange}
         />
-        <button className="bg-slate-700 text-[#fff] uppercase p-3 rounded-lg hover:opacity-95">
+        <button disabled = {loading} className="bg-slate-700 text-[#fff] uppercase p-3 rounded-lg hover:opacity-95 disabled:opacity-85">
           {loading ? "Loading..." : "Update"}
         </button>
         <button className="bg-green-700 text-[#fff] uppercase p-3 rounded-lg hover:opacity-95">
@@ -139,7 +141,8 @@ const Profile = () => {
         <span className="text-red-700">Sign Out</span>
         
       </div>
-      <p className="text-red-700">{error ? error : ''}</p>
+      <p className="text-red-700 mt-3">{error ? error : ''}</p>
+      <p className="text-green-700 mt-3">{updateSuccess ? "User Updated Successfully!" : ""}</p>
     </div>
   );
 };
