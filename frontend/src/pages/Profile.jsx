@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+
 import { useSelector,useDispatch } from "react-redux";
 import {
   getDownloadURL,
@@ -7,7 +8,7 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 import { app } from "../Firebase";
-import {updateUserStart,updateUserSuccess,updateUserFailure} from '../redux/user/userSlice.js'
+import {updateUserStart,updateUserSuccess,updateUserFailure, deleteFailure, deleteStart, deleteSuccess, signOutStart, signOutFailure, signOutSuccess} from '../redux/user/userSlice.js'
 const Profile = () => {
   const { currentUser,loading,error } = useSelector((state) => state.user);
   const fileRef = useRef(null);
@@ -17,6 +18,7 @@ const Profile = () => {
   const [formData, setFormData] = useState({});
   const[updateSuccess,setUpdateSuccess] = useState(false);
   const dispatch = useDispatch();
+
   useEffect(() => {
     if (Files) {
       handleFileUpload(Files);
@@ -70,8 +72,39 @@ const Profile = () => {
       dispatch(updateUserFailure(error.message));
     }
   };
-  console.log(currentUser);
-  console.log(currentUser._id);
+  const handleDeleteUser = async () => {
+    try {
+      dispatch(deleteStart());
+      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(deleteFailure(data.message));
+        return;
+      }
+      dispatch(deleteSuccess(data));
+    } catch (error) {
+      dispatch(deleteFailure(error.message));
+    }
+  };
+ const handleSignOut= async ()=>{
+  try{
+    dispatch(signOutStart());
+    const res = await fetch('/api/auth/signout');
+    const data = await res.json();
+    if(data.success === false){
+      dispatch(signOutFailure(data.message));
+      
+      return;
+    }
+    dispatch(signOutSuccess(data));
+  }catch(error){
+    dispatch(signOutFailure(error.message));
+    
+  }
+ 
+ }
   return (
     <div className="p-3 max-w-lg mx-auto">
       <h1 className="text-3xl text-center my-7">Profile</h1>
@@ -137,8 +170,8 @@ const Profile = () => {
         </button>
       </form>
       <div className="flex flex-row justify-between p-2">
-        <span className="text-red-700">Delete Account</span>
-        <span className="text-red-700">Sign Out</span>
+        <span  className="text-red-700 cursor-pointer" onClick = {handleDeleteUser}>Delete Account</span>
+        <span className="text-red-700 cursor-pointer" onClick={handleSignOut}>Sign Out</span>
         
       </div>
       <p className="text-red-700 mt-3">{error ? error : ''}</p>

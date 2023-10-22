@@ -21,4 +21,15 @@ res.status(200).json(rest);
   next(error);
 }
 }
+//route for delete user
+export const deleteUser = async(req,res,next)=>{
+  if(req.user.id !== req.params.id) return next(errorHandler(401,"You Can delete only your fucking account"))
+  try{
+ await User.findByIdAndDelete(req.params.id);
+  res.clearCookie('access_token');
+  res.status(200).json("User Deleted Successfully!");
+}
+catch(error){
+  next(error);
+}}
 
