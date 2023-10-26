@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-
+import {Link } from 'react-router-dom';
 import { useSelector,useDispatch } from "react-redux";
 import {
   getDownloadURL,
@@ -165,9 +165,9 @@ const Profile = () => {
         <button disabled = {loading} className="bg-slate-700 text-[#fff] uppercase p-3 rounded-lg hover:opacity-95 disabled:opacity-85">
           {loading ? "Loading..." : "Update"}
         </button>
-        <button className="bg-green-700 text-[#fff] uppercase p-3 rounded-lg hover:opacity-95">
+        <Link to = "/create-listing" className="bg-green-700 text-[#fff] uppercase p-3 rounded-lg hover:opacity-95">
           Create Listing
-        </button>
+        </Link>
       </form>
       <div className="flex flex-row justify-between p-2">
         <span  className="text-red-700 cursor-pointer" onClick = {handleDeleteUser}>Delete Account</span>
