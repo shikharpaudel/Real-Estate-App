@@ -10,10 +10,11 @@ const CreateListing = () => {
   const [files, setFiles] = useState([]);
   const [fileUploadError, setFileUploadError] = useState(false);
   const [formData, setFormData] = useState({ imageUrls: [] });
-  console.log(formData);
+  const [uploading,setUploading] = useState(false);
 
   const handleFileUpload = (e) => {
     if (files.length > 0 && files.length  + formData.imageUrls.length < 7) {
+      setUploading(true);
       setFileUploadError(false);
       const promises = [];
       for (let i = 0; i < files.length; i++) {
@@ -56,6 +57,11 @@ const CreateListing = () => {
       );
     });
   };
+  const handleDeleteImage=(index)=>{
+setFormData({
+  ...formData,imageUrls:formData.imageUrls.filter((_,i)=>i !== index)
+})
+  }
   return (
     <main className="p-3 max-w-4xl mx-auto">
       <h1 className="text-3xl font-semibold text-center my-7">
@@ -180,14 +186,23 @@ const CreateListing = () => {
               }}
             />
             <button
+            disabled = {uploading}
               type="button"
               onClick={handleFileUpload}
               className="p-3 text-green-700 border border-green-700 rounded uppercase hover:shadow-lg disabled:opacity-80"
             >
-              Upload
+              {uploading ? "Uploading..." : "Upload"}
             </button>
           </div>
           <p className="text-red-700">{fileUploadError && fileUploadError}</p>
+          {
+            formData.imageUrls.length > 0 && formData.imageUrls.map((url,index)=>(
+              <div key = {url} className="flex justify-between items-center p-3 border">
+              <img src = {url} alt = "listing image" className="w-20 h-20 object-contain rounded-lg" />
+              <button type="button" className="text-red-700 uppercase" onClick={() => handleDeleteImage(index)}>Delete</button>
+              </div>
+            ))
+          }
           <button className="p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 disabled:opacity-80">
             Create Listing
           </button>
