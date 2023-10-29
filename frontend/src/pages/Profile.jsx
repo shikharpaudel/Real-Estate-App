@@ -21,6 +21,7 @@ const Profile = () => {
   const[updateSuccess,setUpdateSuccess] = useState(false);
   const[showListingError,setShowListingError] = useState(false);
   const[userListing,setUserListing] = useState([]);
+  const [deleteError,setDeleteError] = useState(null);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -124,6 +125,22 @@ const Profile = () => {
     setShowListingError(true);
   }
 };
+const handleListingDelete=async(listingId)=>{
+  try{
+    const res = await fetch(`/api/listing/delete/${listingId}`,{
+      method:'DELETE',
+    });
+    const data = await res.json();
+    if(data.success === false){
+      console.log(data.message);
+      return;
+    }
+    setUserListing((prev)=> prev.filter((listing)=>listing._id !== listingId));
+  }catch(error){
+  setDeleteError("Cant delete the listing!")
+  }
+  
+}
 console.log(userListing);
   return (
     <div className="p-3 max-w-lg mx-auto">
@@ -207,6 +224,7 @@ console.log(userListing);
       userListing.length > 0 &&
       <div className="flex flex-col gap-4">
         <h1 className='text-center mt-7 text-2xl font-semibold'>Your Listings</h1>
+        {deleteError && <p className="text-red-700">Listing Delete Failed!</p> }
         {userListing.map((listing) => (
           <div
             key={listing._id}
@@ -227,8 +245,9 @@ console.log(userListing);
             </Link>
 
             <div className='flex flex-row gap-3 item-center'>
-            <AiFillDelete className = "cursor-pointer" size = {20} color = "red"/>
-              <BsPencilFill className = "cursor-pointer" size = {20} color = "green" />
+            <BsPencilFill className = "cursor-pointer" size = {20} color = "green" />
+            <AiFillDelete onClick={()=>{handleListingDelete(listing._id)}} className = "cursor-pointer" size = {20} color = "red"/>
+             
             </div>
           </div>
         ))}
