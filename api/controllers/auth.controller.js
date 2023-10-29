@@ -2,6 +2,7 @@ import User from "../models/user.model.js";
 import bcryptjs from "bcryptjs";
 import { errorHandler } from "../utils/error.js";
 import jwt from "jsonwebtoken";
+import Listing from "../models/listing.model.js";
 
 export const signUp = async (req, res, next) => {
   const { username, email, password } = req.body;
@@ -74,4 +75,17 @@ export const signOut= async (req,res,next)=>{
    }catch(error){
   next(error);
    }
+}
+//for getting listing items
+export const getListing= async (req,res,next)=>{
+if(req.user.id === req.params.id){
+try{
+const listing = await Listing.find({userRef:req.params.id})
+res.status(200).json(listing);
+}catch(error){
+  next(error);
+}
+}else{
+  return next(errorHandler(402,"you can only view your listings!"))
+}
 }

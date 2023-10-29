@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import {Link } from 'react-router-dom';
 import { useSelector,useDispatch } from "react-redux";
+import {AiFillDelete} from 'react-icons/ai'
+import {BsPencilFill} from 'react-icons/bs'
 import {
   getDownloadURL,
   getStorage,
@@ -17,6 +19,8 @@ const Profile = () => {
   const [fileError, setFileError] = useState(false);
   const [formData, setFormData] = useState({});
   const[updateSuccess,setUpdateSuccess] = useState(false);
+  const[showListingError,setShowListingError] = useState(false);
+  const[userListing,setUserListing] = useState([]);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -105,6 +109,22 @@ const Profile = () => {
   }
  
  }
+ const handleShowListing = async () => {
+  try {
+    setShowListingError(false);
+    const res = await fetch(`/api/auth/listing/${currentUser._id}`);
+    const data = await res.json();
+    if (data.success === false) {
+      setShowListingError(true);
+      return;
+    }
+
+    setUserListing(data);
+  } catch (error) {
+    setShowListingError(true);
+  }
+};
+console.log(userListing);
   return (
     <div className="p-3 max-w-lg mx-auto">
       <h1 className="text-3xl text-center my-7">Profile</h1>
@@ -176,8 +196,45 @@ const Profile = () => {
       </div>
       <p className="text-red-700 mt-3">{error ? error : ''}</p>
       <p className="text-green-700 mt-3">{updateSuccess ? "User Updated Successfully!" : ""}</p>
-    </div>
-  );
-};
+      <div className="flex flex-row justify-center">
+      <button className="text-green-700 text-center" onClick={handleShowListing}>Show Listing</button>
+
+      </div>
+      <p className='text-red-700 mt-5'>
+      {showListingError ? 'Error showing listings' : ''}
+    </p>
+    {userListing &&
+      userListing.length > 0 &&
+      <div className="flex flex-col gap-4">
+        <h1 className='text-center mt-7 text-2xl font-semibold'>Your Listings</h1>
+        {userListing.map((listing) => (
+          <div
+            key={listing._id}
+            className='border rounded-lg p-3 flex justify-between items-center gap-4'
+          >
+            <Link to={`/listing/${listing._id}`}>
+              <img
+                src={listing.imageUrls[0]}
+                alt='listing cover'
+                className='h-16 w-16 object-contain'
+              />
+            </Link>
+            <Link
+              className='text-slate-700 font-semibold  hover:underline truncate flex-1'
+              to={`/listing/${listing._id}`}
+            >
+              <p>{listing.name}</p>
+            </Link>
+
+            <div className='flex flex-row gap-3 item-center'>
+            <AiFillDelete className = "cursor-pointer" size = {20} color = "red"/>
+              <BsPencilFill className = "cursor-pointer" size = {20} color = "green" />
+            </div>
+          </div>
+        ))}
+      </div>}
+  </div>
+);
+}
 
 export default Profile;
